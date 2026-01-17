@@ -8,7 +8,7 @@ load_dotenv()
 
 class StreamingHandler(BaseCallbackHandler):
     def on_llm_new_token(self, token, **kwargs):
-        print(token)
+        pass
 
 chat = ChatOpenAI(
     streaming=True,
@@ -18,13 +18,14 @@ chat = ChatOpenAI(
 prompt = ChatPromptTemplate.from_messages([
     ("human", "{content}")
 ])
-chain = LLMChain(llm=chat, prompt=prompt)
 
-for output in chain.stream(input={"content":"Tell me a joke"}):
+class StreamingChain(LLMChain):
+    def stream(self, input):
+        print(self(input))
+        yield 'hi'
+        yield 'there'
+
+chain = StreamingChain(llm=chat, prompt=prompt)
+
+for output in chain.stream(input={"content": "tell me a joke"}):
     print(output)
-
-""" messages = prompt.format_messages(content="Tell me a joke")
-
-for message in chat.stream(messages):
-    print(message.content)
- """
